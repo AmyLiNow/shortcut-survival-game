@@ -5,7 +5,7 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload:
 function preload() {
 
     // game.load.spritesheet('waters', 'assets/sprites/waters.png', 32, 400, 32);
-    game.load.spritesheet('waters', 'assets/sprites/waters1.png', 50, 800);
+    game.load.spritesheet('waters', 'assets/sprites/waters2.png', 50, 800);
 
 }
 
@@ -13,9 +13,13 @@ function preload() {
 var water;
 var counter = 0;
 var text = 0;
+var cursors;
 var controlKey;
-var enterKey;
-var upKey;
+var enterKey= 0;
+// var upKey = 0;
+// var downKey = 0;
+var runningGame = false;
+var startPosition = 400; // y start position of water
 
 // questions and answers
 // var myobj = {
@@ -27,8 +31,8 @@ var upKey;
 function create() {
   // constructor new TileSprite(game, x, y, width of sprite, height of sprite, key of image used, frame is part of sprite used)
     // water = game.add.tileSprite(0, 540, 800, 600, 'waters');
-    water = game.add.tileSprite(0, 200, 800, 600, 'waters');
-    water.scale.setTo(1,1.5)
+    water = game.add.tileSprite(0, startPosition, 1600, 800, 'waters');
+    water.scale.setTo(.5,1);
     // water = game.add.sprite(0, 0, 'waters');
     // water animation set up
     water.animations.add('waves0', [0, 1, 2, 3, 2, 1]);
@@ -49,21 +53,80 @@ function create() {
     // play animation
     water.animations.play('waves' + n, 8, true);
 
-    text = game.add.text(game.world.centerX, game.world.centerY, 'Press enter key to start', { font: "64px Arial", fill: "#ffffff", align: "center" });
+    text = game.add.text(game.world.centerX, game.world.centerY, 'Press enter key to start', { font: "64px Arial", fill: "#ffffff", align: "center", wordWrap: true, wordWrapWidth: 450 });
     text.anchor.setTo(0.5, 0.5);
 
+    cursors = game.input.keyboard.createCursorKeys();
 
-      controlKey = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL);
-      enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-      upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-
-
-
+    controlKey = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL);
+    enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
 }
+
+
+
+function update() {
+
+
+  if(enterKey.isDown && water.y == startPosition) {
+    console.log("enter");
+    start();
+    //  text.setText('Counter: ' + counter);
+    game.time.events.start();
+    enterKey.isDown = false;
+    runningGame = true;
+ }
+
+ if (runningGame) {
+   if(cursors.down.isDown){
+     water.y+=10;
+     // alert("1");
+     // downKey.isDown = false;
+   }
+   else if(!cursors.up.isDown) {
+   // else if answer is wrong water.y+
+     water.y-=.5;
+     // upKey.isDown = false;
+   }
+ }
+
+
+
+
+  if( water.position.y <= -10 || water.position.y >= 580 ) {
+      runningGame = false; //turns of my up/down game keys
+
+      game.time.events.stop();
+
+
+    if(water.position.y <= -10) {
+
+      text.text = "You Lose! Press enter to restart";
+      // upKey = " ";
+
+    }
+    else if ( water.position.y >= 580) {
+
+      text.text = "You Win! Press enter to restart";
+      // downKey = " ";
+
+
+    }
+
+    if(enterKey.isDown){
+      restart();
+      enterKey.isDown = false;
+    }
+
+  }
+}
+
+
+// start game when enterkey is pressed
 function start() {
     game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
 }
+
 function updateCounter() {
 
     counter++;
@@ -73,36 +136,10 @@ function updateCounter() {
     text.setText('Counter: ' + counter);
 
 }
-
-function update() {
-
-
-  if(enterKey.isDown ) {
-   start();
-   enterKey.isDown = false;
-
-  }
-  if(controlKey.isDown){
-    water.y+=10;
-    // alert("1");
-    controlKey.isDown = false;
-  }
-  else if(upKey.isDown) {
-  // else if answer is wrong water.y+
-    water.y-=10;
-    upKey.isDown = false;
-  }
-
-  if(water.position.y <= -40) {
-
-    game.time.events.stop();
-
-    text.setText("You Lose!");
-    upKey.removeKey(UP);
-  }
-  else if ( water.position.y >= 580) {
-    text.setText("You Win!");
-  }
-
+function restart() {
+      water.position.y = startPosition;
+      counter = 0;
+      // runningGame = true;
+      text.text = "Press enter to start";
 
 }
