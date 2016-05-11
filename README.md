@@ -1,2 +1,2 @@
 # shortcut-survival-game
-Game to practice your keyboard shortcut knowledge
+Game for my students to test their keyboard shortcut knowledge!
