@@ -7,7 +7,9 @@ function preload() {
     // game.load.spritesheet('waters', 'assets/sprites/waters.png', 32, 400, 32);
     game.load.spritesheet('waters', 'assets/sprites/waters2.png', 50, 800);
 
-}
+    //  Here we load the octopus Texture Atlas and XML file
+    game.load.atlasXML('octopus', 'assets/sprites/octopus.png', 'assets/sprites/octopus.xml');
+} //end preload
 
 // global variables
 var water;
@@ -20,12 +22,17 @@ var enterKey= 0;
 // var downKey = 0;
 var runningGame = false;
 var startPosition = 400; // y start position of water
-
-// questions and answers
-// var myobj = {
-//   "questions": ["copy","paste","cut", "add", "subtract", "single quote", "double quote"],
-//   "answers": ["namit","amit","sushil"]
-// }
+var octopus;
+var octopusTween;
+var octopusStartPositionY = 450;
+var questionsAnswersArray
+// questions and answers array
+ questionsAnswersArray =
+ [
+  //  ["Save", "s"],
+  //  ["Copy", "c" ],
+   ["control", "CONTROL"]
+ ]
 
 // start painting the screen
 function create() {
@@ -61,7 +68,18 @@ function create() {
     controlKey = game.input.keyboard.addKey(Phaser.Keyboard.CONTROL);
     enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
-}
+    octopus = game.add.sprite(300, octopusStartPositionY, 'octopus');
+
+    //  Create an animation called 'swim', the fact we don't specify any frames means it will use all frames in the atlas
+    octopus.animations.add('swim');
+
+    //  Play the animation at 30fps on a loop
+    octopus.animations.play('swim', 30, true);
+
+    //  Bob the octopus up and down with a tween
+    // octopusTween = game.add.tween(octopus).to({ y: 400 }, 2000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true);
+
+} //end create
 
 
 
@@ -75,20 +93,26 @@ function update() {
     game.time.events.start();
     enterKey.isDown = false;
     runningGame = true;
- }
+  }
 
- if (runningGame) {
-   if(cursors.down.isDown){
-     water.y+=10;
-     // alert("1");
-     // downKey.isDown = false;
-   }
-   else if(!cursors.up.isDown) {
-   // else if answer is wrong water.y+
-     water.y-=.5;
-     // upKey.isDown = false;
-   }
- }
+   if (runningGame) {
+     if(cursors.down.isDown){
+       water.y+=10;
+       // alert("1");
+       // downKey.isDown = false;
+        octopus.y += .5;
+      // octopusTween = game.add.tween(octopus).to({ y: '+100' }, 2000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true);
+
+     }
+     else  {
+     // else if answer is wrong water goes up
+       water.y-=.5;
+       // upKey.isDown = false;
+        octopus.y -= .5;
+      //  octopusTween = game.add.tween(octopus).to({ y: '-100' }, 2000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true);;
+     }
+
+  }
 
 
 
@@ -119,7 +143,7 @@ function update() {
     }
 
   }
-}
+} // end update
 
 
 // start game when enterkey is pressed
@@ -136,9 +160,11 @@ function updateCounter() {
     text.setText('Counter: ' + counter);
 
 }
+
 function restart() {
       water.position.y = startPosition;
       counter = 0;
+      octopus.y = octopusStartPositionY;
       // runningGame = true;
       text.text = "Press enter to start";
 
